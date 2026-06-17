@@ -86,21 +86,35 @@ try:
 
     if len(buttons) > 6:
         buttons[6].click()
+        driver.save_screenshot("download_triggered.png")
         print("Excel Download Triggered")
     else:
         raise Exception("Excel button not found")
 
-    # Wait for Download
-    time.sleep(20)
+   # Wait for Download
+    print("Waiting for download...")
 
     downloaded_file = None
 
-    for file in os.listdir(download_folder):
-        if file.endswith(".xlsx"):
-            downloaded_file = os.path.join(download_folder, file)
+    for _ in range(60):  # wait up to 120 seconds
+
+        files = os.listdir(download_folder)
+
+        for file in files:
+            print("Found file:", file)
+
+            if file.endswith(".xlsx"):
+                downloaded_file = os.path.join(download_folder, file)
+                break
+
+        if downloaded_file:
             break
 
+        time.sleep(2)
+
     if not downloaded_file:
+        print("Files currently in download folder:")
+        print(os.listdir(download_folder))
         raise Exception("Downloaded file not found")
 
     # Rename File
