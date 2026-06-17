@@ -27,6 +27,7 @@ options = Options()
 options.add_argument("--headless=new")
 options.add_argument("--no-sandbox")
 options.add_argument("--disable-dev-shm-usage")
+options.add_argument("--window-size=1920,1080")
 
 prefs = {
     "download.prompt_for_download": False,
@@ -38,14 +39,24 @@ prefs = {
 options.add_experimental_option("prefs", prefs)
 
 driver = webdriver.Chrome(options=options)
+
+# Allow Downloads in Headless Chrome
+driver.execute_cdp_cmd(
+    "Page.setDownloadBehavior",
+    {
+        "behavior": "allow",
+        "downloadPath": download_folder
+    }
+)
+
 wait = WebDriverWait(driver, 30)
 
 try:
+
     print("Opening login page...")
 
     driver.get("https://erp.datserp.com/#/login")
 
-    # Email
     email_box = wait.until(
         EC.presence_of_element_located(
             (By.CSS_SELECTOR, "input[ng-model='form.email']")
@@ -53,7 +64,6 @@ try:
     )
     email_box.send_keys(USERNAME)
 
-    # Password
     password_box = wait.until(
         EC.presence_of_element_located(
             (By.CSS_SELECTOR, "input[ng-model='form.password']")
@@ -61,7 +71,6 @@ try:
     )
     password_box.send_keys(PASSWORD)
 
-    # Login
     login_btn = wait.until(
         EC.element_to_be_clickable(
             (By.XPATH, "//button[contains(.,'Login')]")
@@ -72,92 +81,4 @@ try:
 
     print("Login successful")
 
-    time.sleep(8)
-
-    # Report Page
-    driver.get(
-        "https://erp.datserp.com/#/erp/finalgoodsSameColorStockReport"
-    )
-
-    print("Waiting report page...")
-    time.sleep(15)
-
-    buttons = driver.find_elements(By.TAG_NAME, "button")
-
-    if len(buttons) > 6:
-        buttons[6].click()
-        driver.save_screenshot("download_triggered.png")
-        print("Excel Download Triggered")
-    else:
-        raise Exception("Excel button not found")
-
-   # Wait for Download
-    print("Waiting for download...")
-
-    downloaded_file = None
-
-    for _ in range(60):  # wait up to 120 seconds
-
-        files = os.listdir(download_folder)
-
-        for file in files:
-            print("Found file:", file)
-
-            if file.endswith(".xlsx"):
-                downloaded_file = os.path.join(download_folder, file)
-                break
-
-        if downloaded_file:
-            break
-
-        time.sleep(2)
-
-    if not downloaded_file:
-        print("Files currently in download folder:")
-        print(os.listdir(download_folder))
-        raise Exception("Downloaded file not found")
-
-    # Rename File
-    today = datetime.now().strftime("%Y-%m-%d")
-
-    final_file = os.path.join(
-        download_folder,
-        f"Opening_{today}.xlsx"
-    )
-
-    os.rename(downloaded_file, final_file)
-
-    print(f"Renamed to {final_file}")
-
-    # Send Email
-    msg = EmailMessage()
-
-    msg["Subject"] = f"Opening Stock Report - {today}"
-    msg["From"] = EMAIL_USER
-    msg["To"] = EMAIL_TO
-
-    msg.set_content(
-        f"Opening Stock Report attached.\n\nDate: {today}"
-    )
-
-    with open(final_file, "rb") as f:
-        msg.add_attachment(
-            f.read(),
-            maintype="application",
-            subtype="vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            filename=os.path.basename(final_file)
-        )
-
-    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
-        smtp.login(EMAIL_USER, EMAIL_PASS)
-        smtp.send_message(msg)
-
-    print("Email Sent Successfully")
-
-except Exception as e:
-    print("ERROR:")
-    print(str(e))
-    driver.save_screenshot("error.png")
-
-finally:
-    driver.quit()
+    time.sleep
