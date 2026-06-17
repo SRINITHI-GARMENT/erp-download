@@ -1,1 +1,52 @@
+name: ERP Stock Reports
 
+on:
+workflow_dispatch:
+
+schedule:
+- cron: '29 18 * * *'
+- cron: '31 18 * * *'
+
+jobs:
+stock-report:
+runs-on: ubuntu-latest
+
+```
+steps:
+  - name: Checkout Repository
+    uses: actions/checkout@v4
+
+  - name: Setup Python
+    uses: actions/setup-python@v5
+    with:
+      python-version: '3.11'
+
+  - name: Install Chrome
+    uses: browser-actions/setup-chrome@v1
+
+  - name: Install Dependencies
+    run: |
+      pip install -r requirements.txt
+
+  - name: Run Closing Stock
+    if: github.event.schedule == '29 18 * * *'
+    env:
+      ERP_USERNAME: ${{ secrets.ERP_USERNAME }}
+      ERP_PASSWORD: ${{ secrets.ERP_PASSWORD }}
+      EMAIL_USER: ${{ secrets.EMAIL_USER }}
+      EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
+      EMAIL_TO: ${{ secrets.EMAIL_TO }}
+    run: |
+      python closing_stock.py
+
+  - name: Run Opening Stock
+    if: github.event.schedule == '31 18 * * *'
+    env:
+      ERP_USERNAME: ${{ secrets.ERP_USERNAME }}
+      ERP_PASSWORD: ${{ secrets.ERP_PASSWORD }}
+      EMAIL_USER: ${{ secrets.EMAIL_USER }}
+      EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
+      EMAIL_TO: ${{ secrets.EMAIL_TO }}
+    run: |
+      python opening_stock.py
+```
