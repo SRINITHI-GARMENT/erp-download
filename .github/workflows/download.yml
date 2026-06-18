@@ -3,8 +3,8 @@ name: ERP Stock Reports
 on:
   workflow_dispatch:
   schedule:
-    - cron: '50 4 * * *'   # 10:20 AM IST (Tamil Nadu)
-    - cron: '55 4 * * *'   # 10:25 AM IST (Tamil Nadu)
+    - cron: '40 5 * * *'
+    - cron: '50 5 * * *'
 jobs:
   stock-report:
     runs-on: ubuntu-latest
