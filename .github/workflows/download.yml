@@ -2,31 +2,39 @@ name: ERP Stock Reports
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '30 4 * * *'   # 11:59 PM IST
+    - cron: '35 4 * * *'   # 12:01 AM IST
 
 jobs:
-  closing-stock:
+  stock-report:
     runs-on: ubuntu-latest
 
-    env:
-      ERP_USERNAME: ${{ secrets.ERP_USERNAME }}
-      ERP_PASSWORD: ${{ secrets.ERP_PASSWORD }}
-      EMAIL_USER: ${{ secrets.EMAIL_USER }}
-      EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
-      EMAIL_TO: ${{ secrets.EMAIL_TO }}
-
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      - name: Install Dependencies
-        run: |
-          pip install -r requirements.txt
+      - run: pip install -r requirements.txt
 
       - name: Run Closing Stock
-        run: |
-          python closing_stock.py
+        if: github.event.schedule == '30 4 * * *'
+        env:
+          ERP_USERNAME: ${{ secrets.ERP_USERNAME }}
+          ERP_PASSWORD: ${{ secrets.ERP_PASSWORD }}
+          EMAIL_USER: ${{ secrets.EMAIL_USER }}
+          EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
+          EMAIL_TO: ${{ secrets.EMAIL_TO }}
+        run: python closing_stock.py
+
+      - name: Run Opening Stock
+        if: github.event.schedule == '35 4 * * *'
+        env:
+          ERP_USERNAME: ${{ secrets.ERP_USERNAME }}
+          ERP_PASSWORD: ${{ secrets.ERP_PASSWORD }}
+          EMAIL_USER: ${{ secrets.EMAIL_USER }}
+          EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
+          EMAIL_TO: ${{ secrets.EMAIL_TO }}
+        run: python opening_stock.py
