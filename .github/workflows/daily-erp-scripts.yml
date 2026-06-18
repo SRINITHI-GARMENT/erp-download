@@ -1,0 +1,19 @@
+name: Daily ERP scripts
+
+on:
+  schedule:
+    - cron: '0 8 * * *'  # every day at 08:00 UTC
+
+jobs:
+  run-scripts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - name: Run opening_stock.py
+        run: python opening_stock.py
+      - name: Run closing_stock.py
+        run: python closing_stock.py
