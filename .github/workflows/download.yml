@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  opening-stock:
+  closing-stock:
     runs-on: ubuntu-latest
 
     env:
