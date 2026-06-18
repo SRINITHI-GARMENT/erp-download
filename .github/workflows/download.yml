@@ -3,9 +3,8 @@ name: ERP Stock Reports
 on:
   workflow_dispatch:
   schedule:
-    - cron: '30 4 * * *'   # 11:59 PM IST
-    - cron: '35 4 * * *'   # 12:01 AM IST
-
+    - cron: '50 4 * * *'   # 10:20 AM IST (Tamil Nadu)
+    - cron: '55 4 * * *'   # 10:25 AM IST (Tamil Nadu)
 jobs:
   stock-report:
     runs-on: ubuntu-latest
@@ -20,7 +19,7 @@ jobs:
       - run: pip install -r requirements.txt
 
       - name: Run Closing Stock
-        if: github.event.schedule == '30 4 * * *'
+        if: github.event.schedule == '50 4 * * *'
         env:
           ERP_USERNAME: ${{ secrets.ERP_USERNAME }}
           ERP_PASSWORD: ${{ secrets.ERP_PASSWORD }}
@@ -30,7 +29,7 @@ jobs:
         run: python closing_stock.py
 
       - name: Run Opening Stock
-        if: github.event.schedule == '35 4 * * *'
+        if: github.event.schedule == '55 4 * * *'
         env:
           ERP_USERNAME: ${{ secrets.ERP_USERNAME }}
           ERP_PASSWORD: ${{ secrets.ERP_PASSWORD }}
