@@ -3,8 +3,8 @@ name: ERP Stock Reports
 on:
   workflow_dispatch: {}
   schedule:
-    - cron: '29 18 * * *'
-    - cron: '31 18 * * *'
+    - cron: '40 10 * * *'   # 4:10 PM IST
+    - cron: '45 10 * * *'   # 4:15 PM IST
 
 jobs:
   stock-report:
