@@ -1,38 +1,14 @@
 name: ERP Stock Reports
 
 on:
-  workflow_dispatch:
   schedule:
     - cron: '*/5 * * * *'
+  workflow_dispatch:
+
 jobs:
-  stock-report:
+  test:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-
-      - run: pip install -r requirements.txt
-
-      - name: Run Closing Stock
-        
-        env:
-          ERP_USERNAME: ${{ secrets.ERP_USERNAME }}
-          ERP_PASSWORD: ${{ secrets.ERP_PASSWORD }}
-          EMAIL_USER: ${{ secrets.EMAIL_USER }}
-          EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
-          EMAIL_TO: ${{ secrets.EMAIL_TO }}
-        run: python closing_stock.py
-
-      - name: Run Opening Stock
-    
-        env:
-          ERP_USERNAME: ${{ secrets.ERP_USERNAME }}
-          ERP_PASSWORD: ${{ secrets.ERP_PASSWORD }}
-          EMAIL_USER: ${{ secrets.EMAIL_USER }}
-          EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
-          EMAIL_TO: ${{ secrets.EMAIL_TO }}
-        run: python opening_stock.py
+      - name: Show Time
+        run: date
